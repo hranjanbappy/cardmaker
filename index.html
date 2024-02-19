@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Visiting Card</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            width: 420px; /* 3.4 inches * 100 pixels/inch */
+            height: 220px; /* 2.15 inches * 100 pixels/inch */
+            background: url('rose.jpg') no-repeat center center; /*#740000;*/
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 60px;
+            text-align: left;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+            height: 100%;
+            margin-left: 40px;
+        }
+
+        .name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .job, .company {
+            font-size: 12px;
+            font-style: italic;
+            color: #ffc003;
+            margin-bottom: 0px;
+        }
+
+        .contact {
+            line-height: 1.5;
+            font-size: 10px;
+            color: #fff;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        #qrcode {
+            width: 80px;
+            height: 80px;
+            margin-top: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type=text],
+        input[type=email],
+        input[type=tel],
+        input[type=text] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #449d7a;
+        }
+
+        button#download-btn {
+            margin-top: 10px;
+            disabled: true;
+            background-color: #ff0000; /* Red color */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button#download-btn:hover {
+            background-color: #000000;
+        }
+    </style>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById('info-form');
+            const cardContainer = document.querySelector('.card');
+            const nameElement = document.querySelector('.name');
+            const jobElement = document.querySelector('.job');
+            const companyElement = document.querySelector('.company');
+            const phoneElement = document.querySelector('.phone');
+            const emailElement = document.querySelector('.email');
+            const websiteElement = document.querySelector('.website');
+            const qrcodeElement = document.getElementById('qrcode');
+            const downloadBtn = document.getElementById('download-btn');
+            let isQRCodeGenerated = false;
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                // Get form values
+                const name = document.getElementById('name').value;
+                const job = document.getElementById('job').value;
+                const company = document.getElementById('company').value;
+                const phone = document.getElementById('phone').value;
+                const email = document.getElementById('email').value;
+                const website = document.getElementById('website').value;
+
+                // Update card content
+                nameElement.textContent = name;
+                jobElement.textContent = job;
+                companyElement.textContent = company;
+                phoneElement.textContent = `Phone: ${phone}`;
+                emailElement.textContent = `Email: ${email}`;
+                websiteElement.textContent = `Website: ${website}`;
+
+                // Generate QR code only if not generated before
+                if (!isQRCodeGenerated) {
+                    // Generate QR code
+                    const qrCodeData = `${website}`;
+                    const qrCode = new QRCode(qrcodeElement, {
+                        text: qrCodeData,
+                        width: 80,
+                        height: 80
+                    });
+                    isQRCodeGenerated = true;
+                }
+
+                // Enable download button
+                downloadBtn.disabled = false;
+            });
+
+            downloadBtn.addEventListener('click', function () {
+                // Use html2canvas to capture the content of the card
+                html2canvas(cardContainer, { scale: 2 }) // Set the scale for higher resolution
+                    .then(canvas => {
+                        // Convert canvas to data URL
+                        const dataURL = canvas.toDataURL('image/png');
+
+                        // Create a temporary link element
+                        const link = document.createElement('a');
+                        link.href = dataURL;
+                        link.download = 'visiting_card.png';
+
+                        // Trigger a click event to initiate the download
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="content">
+                <h1 class="contact">
+                    <span class="name"></span><br>
+                    <span class="job"></span><br>
+                    <span class="company"></span><br><br>
+                    <span class="phone"></span><br>
+                    <span class="email"></span><br>
+                    <span class="website"></span><br><br>
+                    <span id="qrcode"></span><br>
+                </h1>
+            </div>
+        </div>
+
+        <form id="info-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name">
+            <label for="job">Job:</label>
+            <input type="text" id="job" name="job" placeholder="Enter your job">
+            <label for="company">Company/Organization:</label>
+            <input type="text" id="company" name="company" placeholder="Enter your company/organization">
+            <label for="phone">Phone number:</label>
+            <input type="tel" id="phone" name="phone" placeholder="Enter your phone number">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email address">
+            <label for="website">Website:</label>
+            <input type="text" id="website" name="website" placeholder="Enter your website URL">
+            <button type="submit">Generate Card</button>
+            <button id="download-btn" disabled>Download Card</button>
+        </form>
+    </div>
+</body>
+</html>
